@@ -1,0 +1,33 @@
+name: Terraform Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  terraform:
+    name: Terraform Test Workflow
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Взима кода от repo-то
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Инсталира Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # 3. Инициализация
+      - name: Terraform Init
+        run: terraform init
+
+      # 4. Проверка на форматиране
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      # 5. Валидация
+      - name: Terraform Validate
+        run: terraform validate
