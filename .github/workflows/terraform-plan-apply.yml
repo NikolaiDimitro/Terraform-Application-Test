@@ -1,0 +1,77 @@
+name: terraform plan and apply
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout кода
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Azure login чрез AZURE_CREDENTIALS
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Инсталиране на Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # Terraform init
+      - name: Terraform Init
+        run: terraform init
+
+      # Terraform plan -> записва се във файл tfplan
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      # Качване на tfplan като artifact
+      - name: Save Terraform Plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-plan
+          path: tfplan
+
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: terraform-plan
+
+    steps:
+      # Checkout кода
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Azure login
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Инсталиране на Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # Terraform init
+      - name: Terraform Init
+        run: terraform init
+
+      # Изтегляне на tfplan
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v3
+        with:
+          name: terraform-plan
+
+      # Terraform apply с auto-approve на tfplan
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
