@@ -1,4 +1,4 @@
-name: terraform plan and apply
+name: Terraform Plan and Apply
 
 on:
   push:
@@ -15,29 +15,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout кода
+      # 1. Checkout кода
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Azure login чрез AZURE_CREDENTIALS
+      # 2. Azure login чрез Service Principal
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Инсталиране на Terraform
+      # 3. Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # Terraform init
+      # 4. Terraform init
       - name: Terraform Init
         run: terraform init
 
-      # Terraform plan -> записва се във файл tfplan
+      # 5. Terraform plan -> записва се във файл tfplan
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
-      # Качване на tfplan като artifact
+      # 6. Качване на tfplan като artifact
       - name: Save Terraform Plan
         uses: actions/upload-artifact@v4
         with:
@@ -50,31 +50,30 @@ jobs:
     needs: terraform-plan
 
     steps:
-      # Checkout кода
+      # 1. Checkout кода
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Azure login
+      # 2. Azure login чрез Service Principal
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Инсталиране на Terraform
+      # 3. Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # Terraform init
+      # 4. Terraform init
       - name: Terraform Init
         run: terraform init
 
-      # Изтегляне на tfplan
+      # 5. Изтегляне на tfplan
       - name: Download Terraform Plan
         uses: actions/download-artifact@v4
         with:
           name: terraform-plan
 
-      # Terraform apply с auto-approve на tfplan
+      # 6. Terraform apply с auto-approve на tfplan
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve tfplan  
+        run: terraform apply -auto-approve tfplan
