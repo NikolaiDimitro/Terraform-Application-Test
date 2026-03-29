@@ -77,4 +77,4 @@ jobs:
       # Terraform apply с auto-approve на tfplan
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve tfplan 
+        run: terraform apply -auto-approve tfplan  
