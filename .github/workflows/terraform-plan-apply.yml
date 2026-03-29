@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   terraform-plan:
     name: Terraform Plan
@@ -36,7 +39,7 @@ jobs:
 
       # Качване на tfplan като artifact
       - name: Save Terraform Plan
-        uses: actions/upload-artifact@v4  
+        uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
           path: tfplan
@@ -67,7 +70,7 @@ jobs:
 
       # Изтегляне на tfplan
       - name: Download Terraform Plan
-        uses: actions/download-artifact@v4 
+        uses: actions/download-artifact@v4
         with:
           name: terraform-plan
 
